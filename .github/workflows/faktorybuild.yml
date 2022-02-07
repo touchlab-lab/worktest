@@ -1,0 +1,15 @@
+name: Faktory Build Workflow
+on:
+  workflow_call:
+
+jobs:
+  fixprbase:
+    if: ${{ github.event != 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check and fix PR Base
+        id: fix-pr-base
+        uses: touchlab-lab/fix-pr-base@v0.2
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          targetbranch: develop
