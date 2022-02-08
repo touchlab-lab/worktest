@@ -4,12 +4,13 @@ on:
 
 jobs:
   fixprbase:
-    if: ${{ github.event != 'main' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check and fix PR Base
-        id: fix-pr-base
-        uses: touchlab-lab/fix-pr-base@v0.2
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          targetbranch: develop
+      - name: Echo github stuff
+        run: echo "Event ${{ github.event }}"
+#      - name: Check and fix PR Base
+#        id: fix-pr-base
+#        uses: touchlab-lab/fix-pr-base@v0.2
+#        with:
+#          githubToken: ${{ secrets.GITHUB_TOKEN }}
+#          targetbranch: develop
