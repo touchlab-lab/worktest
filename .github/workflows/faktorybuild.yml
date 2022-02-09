@@ -1,6 +1,11 @@
 name: Faktory Build Workflow
 on:
   workflow_call:
+    secrets:
+      AWS_TOUCHLAB_DEPLOY_ACCESS:
+        required: true
+      AWS_TOUCHLAB_DEPLOY_PRIVATE:
+        required: true
 
 jobs:
   fixprbase:
@@ -57,4 +62,7 @@ jobs:
           source_ref: ${{ github.ref }}
           target_branch: 'main'
           commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
-
+env:
+  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_DEPLOY_ACCESS: ${{ secrets.AWS_TOUCHLAB_DEPLOY_ACCESS }}
+  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_DEPLOY_PRIVATE: ${{ secrets.AWS_TOUCHLAB_DEPLOY_PRIVATE }}
+  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
