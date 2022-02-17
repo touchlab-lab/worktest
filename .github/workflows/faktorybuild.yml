@@ -1,14 +1,12 @@
 name: Faktory Build Workflow
 on:
   workflow_call:
+    inputs:
+      faktory_module:
+        required: true
+        type: string
     secrets:
-      AWS_TOUCHLAB_ACCESS:
-        required: true
-      AWS_TOUCHLAB_PRIVATE:
-        required: true
-      AWS_TOUCHLAB_DEPLOY_ACCESS:
-        required: true
-      AWS_TOUCHLAB_DEPLOY_PRIVATE:
+      faktory_key:
         required: true
 
 jobs:
@@ -20,13 +18,16 @@ jobs:
         run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
       - name: Check and fix PR Base
         id: fix-pr-base
-        uses: touchlab-lab/fix-pr-base@v0.7
+        uses: touchlab-lab/fix-pr-base@v0.8
   iosbinary:
     if: ${{ github.event_name == 'push' && github.ref_name == 'develop' }}
     runs-on: macos-latest
     steps:
-      - name: Echo github stuff
-        run: echo "Event github.event_name ${{ github.event_name }} github.ref_name ${{ github.ref_name }}"
+      - name: Checksame read before
+        id: checksamebefore
+        uses: touchlab-lab/fk-read-checksame@v0.1
+        with:
+          faktory_module: ${{ inputs.faktory_module }}
       - name: Checkout the repo
         uses: actions/checkout@v2
       - uses: actions/setup-java@v2
@@ -42,24 +43,22 @@ jobs:
             ~/.gradle/caches
             ~/.konan
           key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
-      - name: Get Time
-        id: time
-        uses: nanzm/get-time-action@v1.1
-      - name: Cache spm
-        uses: actions/cache@v2
+      - name: Run Check For Changes
+        run: ./gradlew -PFAKTORY_BUILD_KEY=${{ secrets.faktory_key }} -Porg.gradle.caching=true checkIfChanges --no-daemon --stacktrace
+      - name: Checksame read after
+        id: checksameafter
+        uses: touchlab-lab/fk-read-checksame@v0.1
         with:
-          path: |
-            */build
-            .gradle
-          key: ${{ runner.os }}-iosbinary-${{ steps.time.outputs.time }}
-          restore-keys: |
-            ${{ runner.os }}-iosbinary-
+          faktory_module: ${{ inputs.faktory_module }}
+      - name: Echo checksum reads
+        run: echo "Checksum before ${{ steps.checksamebefore.outputs.checksum }} / Checksum after ${{ steps.checksameafter.outputs.checksum }}"
       - name: Build Main
+        if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
         run: ./gradlew :api:uploadXCFramework --no-daemon --stacktrace
-      - name: Push SPM Updates
+      - name: Push Config Updates
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Update SPM remote
+          commit_message: Update iOS Packaging
       - uses: everlytic/branch-merge@1.1.2
         with:
           github_token: ${{ github.token }}
@@ -67,8 +66,4 @@ jobs:
           target_branch: 'main'
           commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
 env:
-  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_ACCESS: ${{ secrets.AWS_TOUCHLAB_ACCESS }}
-  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_PRIVATE: ${{ secrets.AWS_TOUCHLAB_PRIVATE }}
-  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_DEPLOY_ACCESS: ${{ secrets.AWS_TOUCHLAB_DEPLOY_ACCESS }}
-  ORG_GRADLE_PROJECT_AWS_TOUCHLAB_DEPLOY_PRIVATE: ${{ secrets.AWS_TOUCHLAB_DEPLOY_PRIVATE }}
   GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
