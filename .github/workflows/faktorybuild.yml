@@ -14,7 +14,7 @@ on:
 
 jobs:
   fixprbase:
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
+    if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'edited')}}
     runs-on: ubuntu-latest
     steps:
       - name: Echo github stuff
