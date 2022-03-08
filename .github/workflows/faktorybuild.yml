@@ -21,7 +21,7 @@ jobs:
         run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
       - name: Check and fix PR Base
         id: fix-pr-base
-        uses: touchlab-lab/fix-pr-base@v0.8
+        uses: touchlab-lab/fix-pr-base@v0.9
   iosbinary:
     if: ${{ github.event_name == 'push' && github.ref_name == 'develop' }}
     runs-on: macos-latest
