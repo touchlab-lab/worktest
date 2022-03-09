@@ -52,7 +52,7 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
       - name: Run Check For Changes
-        run: ./gradlew -PFAKTORY_BUILD_KEY=${{ secrets.faktory_key }} -Porg.gradle.caching=true ${{ secrets.gradle_params }} checkIfChanges --no-daemon --stacktrace
+        run: ./gradlew -PFAKTORY_BUILD_KEY=${{ secrets.faktory_key }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} checkIfChanges --no-daemon --stacktrace
       - name: Checksame read after
         id: checksameafter
         uses: touchlab-lab/fk-read-checksame@v0.1
@@ -62,7 +62,7 @@ jobs:
         run: echo "Checksum before ${{ steps.checksamebefore.outputs.checksum }} / Checksum after ${{ steps.checksameafter.outputs.checksum }}"
       - name: Build Main
         if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
-        run: ./gradlew ${{ secrets.gradle_params }} uploadXCFramework --no-daemon --stacktrace
+        run: ./gradlew -PFAKTORY_BUILD_KEY=${{ secrets.faktory_key }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} uploadXCFramework --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
       - name: Push Config Updates
