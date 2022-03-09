@@ -13,13 +13,13 @@ on:
         required: false
 
 jobs:
-  logmystuff:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo github stuff
-        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
+#  logmystuff:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Echo github stuff
+#        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
   fixprbase:
-    if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'edited')}}
+    if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'synchronize')}}
     runs-on: ubuntu-latest
     steps:
       - name: Echo github stuff
