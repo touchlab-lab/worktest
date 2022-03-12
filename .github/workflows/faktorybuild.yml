@@ -28,7 +28,7 @@ jobs:
         id: fix-pr-base
         uses: touchlab/fkaction-fix-pr-base@main
         with:
-          FAKTORY_SECRET_KEY: ${{ inputs.FAKTORY_SECRET_KEY }}
+          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
   iosbinary:
     if: ${{ github.event_name == 'push' && github.ref_name == 'develop' }}
     runs-on: macos-latest
@@ -75,4 +75,4 @@ jobs:
         id: merge-branch
         uses: touchlab/fkaction-merge-branch@main
         with:
-          FAKTORY_SECRET_KEY: ${{ inputs.FAKTORY_SECRET_KEY }}
+          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
