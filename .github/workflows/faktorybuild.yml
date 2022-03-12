@@ -26,7 +26,9 @@ jobs:
         run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
       - name: Check and fix PR Base
         id: fix-pr-base
-        uses: touchlab/fkaction-fix-pr-base@v0.9
+        uses: touchlab/fkaction-fix-pr-base@main
+        with:
+          FAKTORY_SECRET_KEY: ${{ inputs.FAKTORY_SECRET_KEY }}
   iosbinary:
     if: ${{ github.event_name == 'push' && github.ref_name == 'develop' }}
     runs-on: macos-latest
@@ -35,7 +37,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Checksame read before
         id: checksamebefore
-        uses: touchlab/fkaction-read-checksame@v0.1
+        uses: touchlab/fkaction-read-checksame@main
         with:
           faktory_module: ${{ inputs.faktory_module }}
       - uses: actions/setup-java@v2
@@ -55,7 +57,7 @@ jobs:
         run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} checkIfChanges --no-daemon --stacktrace
       - name: Checksame read after
         id: checksameafter
-        uses: touchlab/fkaction-read-checksame@v0.1
+        uses: touchlab/fkaction-read-checksame@main
         with:
           faktory_module: ${{ inputs.faktory_module }}
       - name: Echo checksum reads
@@ -71,4 +73,6 @@ jobs:
           commit_message: Update iOS Packaging
       - name: Merge build branch to default branch
         id: merge-branch
-        uses: touchlab/fkaction-merge-branch@v0.1
+        uses: touchlab/fkaction-merge-branch@main
+        with:
+          FAKTORY_SECRET_KEY: ${{ inputs.FAKTORY_SECRET_KEY }}
