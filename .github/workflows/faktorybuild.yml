@@ -39,9 +39,9 @@ jobs:
       - name: Echo installationinfo
         run: echo "buildBranch ${{ steps.installationinfo.outputs.buildBranch }}"
   iosbinary:
-    needs: installationinfo
     if: ${{ github.event_name == 'push' && github.ref_name == ${{needs.installationinfo.outputs.buildBranch}} }}
     runs-on: macos-latest
+    needs: installationinfo
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
