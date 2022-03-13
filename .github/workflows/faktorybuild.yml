@@ -72,6 +72,11 @@ jobs:
           faktory_module: ${{ inputs.faktory_module }}
       - name: Echo checksum reads
         run: echo "Checksum before ${{ steps.checksamebefore.outputs.checksum }} / Checksum after ${{ steps.checksameafter.outputs.checksum }}"
+      - name: Native Tests
+        if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
+        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} allNativeTests --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
       - name: Build Main
         if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
         run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} uploadXCFramework --no-daemon --stacktrace
