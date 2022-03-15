@@ -15,11 +15,11 @@ on:
         required: false
 
 jobs:
-  logmystuff:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo github stuff
-        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
+#  logmystuff:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Echo github stuff
+#        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
 #        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
   check-pr-branch:
     runs-on: ubuntu-latest
@@ -83,8 +83,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update iOS Packaging
-      - name: Echo build_branch
-        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
       - name: Merge build branch to default branch
         id: merge-branch
         uses: touchlab/fkaction-merge-branch@main
