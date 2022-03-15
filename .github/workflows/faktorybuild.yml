@@ -5,7 +5,9 @@ on:
       faktory_module:
         required: true
         type: string
-
+      build_branch:
+        required: true
+        type: string
     secrets:
       FAKTORY_SECRET_KEY:
         required: true
@@ -20,74 +22,21 @@ jobs:
 #        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
   installationinfo:
     runs-on: ubuntu-latest
-    outputs:
-      buildBranch: ${{ steps.installationinfo.outputs.buildBranch }}
     steps:
       - name: Echo github stuff
         run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
-      - name: Installation Info
-        id: installationinfo
-        uses: touchlab/fkaction-installation-info@main
-        with:
-          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
       - name: Check and fix PR Base
         if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'synchronize')}}
         id: fix-pr-base
         uses: touchlab/fkaction-fix-pr-base@main
         with:
           FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
-      - name: Echo installationinfo
-        run: echo "buildBranch ${{ steps.installationinfo.outputs.buildBranch }}"
-  iosbinary:
-    if: ${{ github.event_name == 'push' && github.ref_name == needs.installationinfo.outputs.buildBranch }}
-    runs-on: macos-latest
-    needs: installationinfo
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: Checksame read before
-        id: checksamebefore
-        uses: touchlab/fkaction-read-checksame@main
-        with:
-          faktory_module: ${{ inputs.faktory_module }}
-      - uses: actions/setup-java@v2
-        with:
-          distribution: "adopt"
-          java-version: "11"
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Cache build tooling
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.konan
-          key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
-      - name: Run Check For Changes
-        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} checkIfChanges --no-daemon --stacktrace
-      - name: Checksame read after
-        id: checksameafter
-        uses: touchlab/fkaction-read-checksame@main
-        with:
-          faktory_module: ${{ inputs.faktory_module }}
-      - name: Echo checksum reads
-        run: echo "Checksum before ${{ steps.checksamebefore.outputs.checksum }} / Checksum after ${{ steps.checksameafter.outputs.checksum }}"
-      - name: Native Tests
-        if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
-        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} allNativeTests --no-daemon --stacktrace
-        env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
-      - name: Build Main
-        if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
-        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} uploadXCFramework --no-daemon --stacktrace
-        env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
-      - name: Push Config Updates
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Update iOS Packaging
-      - name: Merge build branch to default branch
-        id: merge-branch
-        uses: touchlab/fkaction-merge-branch@main
-        with:
-          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
+          build_branch: ${{ inputs.build_branch }}
+  call-iosbinary:
+    uses: ./.github/workflows/iosbinary.yml
+    with:
+      faktory_module: ${{ inputs.faktory_module }}
+      build_branch: ${{ inputs.build_branch }}
+    secrets:
+      FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
+      gradle_params: -PAWS_TOUCHLAB_ACCESS=${{ secrets.AWS_TOUCHLAB_ACCESS }} -PAWS_TOUCHLAB_PRIVATE=${{ secrets.AWS_TOUCHLAB_PRIVATE }}
