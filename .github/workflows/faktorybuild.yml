@@ -15,12 +15,13 @@ on:
         required: false
 
 jobs:
-#  logmystuff:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Echo github stuff
+  logmystuff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo github stuff
+        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
 #        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
-  installationinfo:
+  check-pr-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Echo github stuff
