@@ -76,7 +76,7 @@ jobs:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
       - name: Build Main
         if: ${{ steps.checksamebefore.outputs.checksum != steps.checksameafter.outputs.checksum }}
-        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} uploadXCFramework --no-daemon --stacktrace
+        run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} publishRemoteFramework --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
       - name: Push Config Updates
