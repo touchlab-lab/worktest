@@ -54,13 +54,13 @@ jobs:
           java-version: "11"
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
-#      - name: Cache build tooling
-#        uses: actions/cache@v2
-#        with:
-#          path: |
-#            ~/.gradle/caches
-#            ~/.konan
-#          key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
+      - name: Cache build tooling
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.konan
+          key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
       - name: Run Check For Changes
         run: ./gradlew -PFAKTORY_SECRET_KEY=${{ secrets.FAKTORY_SECRET_KEY }} -Dorg.gradle.caching=true ${{ secrets.gradle_params }} checkIfChanges --no-daemon --stacktrace
       - name: Checksame read after
