@@ -22,6 +22,7 @@ jobs:
 #        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
 #        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
   check-pr-branch:
+    if: ${{ github.ref_name != inputs.build_branch }}
     runs-on: ubuntu-latest
     steps:
       - name: Echo github stuff
