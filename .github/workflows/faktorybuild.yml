@@ -77,9 +77,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update iOS Packaging
-      - name: Merge build branch to default branch
-        id: merge-branch
-        uses: touchlab/fkaction-merge-branch@main
-        with:
-          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
-          build_branch: ${{ inputs.build_branch }}
+#      - name: Merge build branch to default branch
+#        id: merge-branch
+#        uses: touchlab/fkaction-merge-branch@main
+#        with:
+#          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
+#          build_branch: ${{ inputs.build_branch }}
