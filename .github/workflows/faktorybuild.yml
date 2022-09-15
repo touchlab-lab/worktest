@@ -1,10 +1,6 @@
 name: Faktory Build Workflow
 on:
   workflow_call:
-    inputs:
-      build_branch:
-        required: true
-        type: string
     secrets:
       FAKTORY_SECRET_KEY:
         required: true
@@ -16,27 +12,10 @@ jobs:
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Echo github stuff
-#        run: echo "inputs.build_branch ${{ inputs.build_branch }}"
 #        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
-  check-pr-branch:
-    if: ${{ github.ref_name != inputs.build_branch }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo github stuff
-        run: echo "Event github.event_name ${{ github.event_name }} github.event.action ${{ github.event.action }} github.repository ${{ github.repository }}"
-      - name: Check and fix PR Base
-        if: ${{ github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'synchronize')}}
-        id: fix-pr-base
-        uses: touchlab/fkaction-fix-pr-base@main
-        with:
-          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
-          build_branch: ${{ inputs.build_branch }}
   iosbinary:
-    if: ${{ github.event_name == 'push' && github.ref_name == inputs.build_branch }}
+#    if: ${{ github.event_name == 'merge_group' }}
     runs-on: macos-latest
-    concurrency:
-      group: iosbinary-${{ inputs.build_branch }}
-      cancel-in-progress: true
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
@@ -77,9 +56,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update iOS Packaging
-      - name: Merge build branch to default branch
-        id: merge-branch
-        uses: touchlab/fkaction-merge-branch@main
-        with:
-          FAKTORY_SECRET_KEY: ${{ secrets.FAKTORY_SECRET_KEY }}
-          build_branch: ${{ inputs.build_branch }}
